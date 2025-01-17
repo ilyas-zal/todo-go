@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+        }
+
+        form {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #4CAF50;
+            border-radius: 4px;
+            width: 300px;
+            margin-right: 10px;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #45a049;
+        }
+
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        li {
+            background-color: white;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        li:hover {
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 500px) {
+            input[type="text"] {
+                width: 200px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>To-Do List</h1>
+    <form action="/add" method="post">
+        <input type="text" name="task" placeholder="Введите задачу" required>
+        <button type="submit">Добавить</button>
+    </form>
+
+    <ul>
+        {{range .}}
+        <li>{{.Task}}</li>
+        {{else}}
+        <li>Нет задач</li>
+        {{end}}
+    </ul>
+</body>
+
+</html>
