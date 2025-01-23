@@ -68,10 +68,31 @@
             border-radius: 4px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             transition: transform 0.2s;
+            display: flex;
+            align-items: center;
         }
 
         li:hover {
             transform: translateY(-2px);
+        }
+
+        /* Стиль для завершенных задач */
+        .completed {
+            text-decoration: line-through;
+            color: gray;
+            /* Серый цвет для завершенных задач */
+            font-weight: bold;
+            /* Убираем жирный шрифт */
+        }
+
+        /* Стиль для активных задач */
+        .task {
+            font-weight: bold;
+            /* Жирный шрифт */
+            color: #4CAF50;
+            /* Зеленый цвет */
+            cursor: pointer;
+            /* Указатель курсора при наведении */
         }
 
         @media (max-width: 500px) {
@@ -90,8 +111,14 @@
     </form>
 
     <ul>
-        {{range .}}
-        <li>{{.Task}}</li>
+        {{range $index, $todo := .}}
+        <li>
+            <form action="/complete" method="post" style="display:inline;">
+                <input type="hidden" name="index" value="{{$index}}">
+                <span class="{{if $todo.Complete}}completed{{else}}task{{end}}"
+                    onclick="this.parentElement.submit()">{{.Task}}</span>
+            </form>
+        </li>
         {{else}}
         <li>Нет задач</li>
         {{end}}
