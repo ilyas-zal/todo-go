@@ -3,6 +3,7 @@ package main // Объявляем основной пакет, содержащ
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"net/http" // Импортируем пакет для работы с HTTP.
 
 	"github.com/ilyas-zal/todo-go/internal/handlers" // Импортируем пакет для работы с HTML-шаблонами.
@@ -13,17 +14,16 @@ import (
 // main инициализирует маршруты и запускает HTTP-сервер.
 // Он связывает обработчики с маршрутами "/" и "/add" и запускает сервер на порту 8080.
 func main() {
-	//bd()
-	// Обрабатываем запросы на главной странице, связывая их с обработчиком indexHandler.
+	fs := http.FileServer(http.Dir("frontend/static"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
 	http.HandleFunc("/", handlers.HomeTemplate)
-	// Обрабатываем запросы на добавление задач, связывая их с обработчиком addHandler.
 	http.HandleFunc("/add", handlers.AddTask)
-
 	http.HandleFunc("/complete", handlers.CompleteTask)
 
-	// Запускаем HTTP-сервер на порту 8080.
-	http.ListenAndServe(":8080", nil)
-
+	log.Println("Сервер запущен на http://localhost:8080")
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		log.Fatalf("Ошибка при запуске сервера: %v\n", err)
+	}
 }
 
 func bd() {
