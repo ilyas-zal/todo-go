@@ -1,55 +1,36 @@
-package main // Объявляем основной пакет, содержащий основную логику приложения.
+package handlers
 
 import (
-	// "database/sql"
-	"html/template" // Импортируем пакет для работы с HTML-шаблонами.
-	"net/http"      // Импортируем пакет для работы с HTTP.
+	"net/http"
+	"path/filepath"
 	"strconv"
 	"sync"
-	//_ "github.com/go-sql-driver/mysql" // Импортируем пакет для работы с синхронизацией (мьютексы).
-)
+	"text/template"
 
-// Todo представляет структуру задачи.
-type Todo struct {
-	Task     string // Поле Task хранит текст задачи.
-	Complete bool   // Проверка, выполнена ли задача
-}
+	"github.com/ilyas-zal/todo-go/internal/models"
+)
 
 // Объявляем переменные для хранения списка задач и мьютекса для синхронизации.
 var (
-	todos []Todo     // Слайс для хранения задач.
-	mu    sync.Mutex // Мьютекс для защиты доступа к слайсу todos.
+	todos []models.Todo // Слайс для хранения задач.
+	mu    sync.Mutex    // Мьютекс для защиты доступа к слайсу todos.
 )
-
-// main инициализирует маршруты и запускает HTTP-сервер.
-// Он связывает обработчики с маршрутами "/" и "/add" и запускает сервер на порту 8080.
-func main() {
-	// Обрабатываем запросы на главной странице, связывая их с обработчиком indexHandler.
-	http.HandleFunc("/", indexHandler)
-	// Обрабатываем запросы на добавление задач, связывая их с обработчиком addHandler.
-	http.HandleFunc("/add", addHandler)
-
-	http.HandleFunc("/complete", completeHandler)
-
-	// Запускаем HTTP-сервер на порту 8080.
-	http.ListenAndServe(":8080", nil)
-}
 
 // indexHandler обрабатывает GET-запросы на главной странице.
 // Он блокирует доступ к списку задач, загружает HTML-шаблон и передает список задач в шаблон для отображения.
-func indexHandler(w http.ResponseWriter, r *http.Request) {
+func HomeTemplate(w http.ResponseWriter, r *http.Request) {
 	mu.Lock()         // Блокируем мьютекс для безопасного доступа к списку задач.
 	defer mu.Unlock() // Отпускаем мьютекс после завершения работы функции.
-
+	tmplPath := filepath.Join("frontend", "templates", "index.html")
 	// Загружаем HTML-шаблон из файла index.html.
-	tmpl := template.Must(template.ParseFiles("templates/index.html"))
+	tmpl := template.Must(template.ParseFiles(tmplPath))
 	// Выполняем шаблон, передавая в него список задач и отправляя результат в ответ.
 	tmpl.Execute(w, todos)
 }
 
 // addHandler обрабатывает POST-запросы для добавления новых задач.
 // Если запрос имеет метод POST, он парсит данные формы, добавляет новую задачу в список и перенаправляет пользователя на главную страницу.
-func addHandler(w http.ResponseWriter, r *http.Request) {
+func AddTask(w http.ResponseWriter, r *http.Request) {
 	// Проверяем, является ли метод запроса POST.
 	if r.Method == http.MethodPost {
 		// Парсим данные формы из запроса.
@@ -59,7 +40,7 @@ func addHandler(w http.ResponseWriter, r *http.Request) {
 
 		mu.Lock() // Блокируем мьютекс для безопасного доступа к списку задач.
 		// Добавляем новую задачу в список.
-		todos = append(todos, Todo{Task: task})
+		todos = append(todos, models.Todo{Task: task})
 		mu.Unlock() // Отпускаем мьютекс.
 
 		// Перенаправляем пользователя на главную страницу после добавления задачи.
@@ -68,7 +49,7 @@ func addHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // completeHandler позволяет изменять статус задачи на выполненную
-func completeHandler(w http.ResponseWriter, r *http.Request) {
+func CompleteTask(w http.ResponseWriter, r *http.Request) {
 	mu.Lock()         // Блокируем мьютекс для безопасного доступа к списку задач.
 	defer mu.Unlock() // Отпускаем мьютекс по завершении
 
